@@ -8,7 +8,7 @@ class PaymentMethodModel extends Model
 {
     protected $table = 'payment_methods';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['name', 'type', 'code', 'icon', 'fee_percent', 'fee_fixed', 'is_active'];
+    protected $allowedFields = ['name', 'type', 'code', 'icon', 'fee', 'is_active'];
     protected $useTimestamps = false;
 
     public function getActive()
@@ -26,8 +26,8 @@ class PaymentMethodModel extends Model
         $payment = $this->find($paymentId);
         if (!$payment) return 0;
         
-        $fee = $payment['fee_fixed'];
-        $fee += ($amount * $payment['fee_percent'] / 100);
+        // Fee sudah dalam satu field saja
+        $fee = $payment['fee'] ?? 0;
         
         return round($fee);
     }
