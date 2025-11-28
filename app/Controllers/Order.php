@@ -1,5 +1,7 @@
 <?php
-
+// ============================================
+// app/Controllers/Order.php (FIXED FEE CALCULATION)
+// ============================================
 namespace App\Controllers;
 
 use App\Models\TransactionModel;
@@ -7,7 +9,6 @@ use App\Models\ProductModel;
 use App\Models\PaymentMethodModel;
 use App\Models\PromoCodeModel;
 use App\Models\UserModel;
-use App\Models\GameModel;
 
 class Order extends BaseController
 {
@@ -15,8 +16,6 @@ class Order extends BaseController
     protected $productModel;
     protected $paymentModel;
     protected $promoModel;
-    protected $userModel;
-    protected $gameModel;
 
     public function __construct()
     {
@@ -24,8 +23,6 @@ class Order extends BaseController
         $this->productModel = new ProductModel();
         $this->paymentModel = new PaymentMethodModel();
         $this->promoModel = new PromoCodeModel();
-        $this->userModel = new UserModel();
-        $this->gameModel = new GameModel();
     }
 
     public function create()
@@ -67,7 +64,7 @@ class Order extends BaseController
             }
         }
 
-        // Calculate fee
+        // Calculate fee - FIXED: hanya satu field fee
         $fee = $this->paymentModel->calculateFee($paymentMethodId, $amount - $discount);
         
         // Total payment
@@ -77,17 +74,14 @@ class Order extends BaseController
         $userId = session()->get('user_id');
         $pointsEarned = 0;
         if ($userId) {
-            $settings = model('SettingModel');
-            $pointsPerThousand = $settings->where('key_name', 'points_per_transaction')->first()['value'] ?? 1;
-            $pointsEarned = floor($totalPayment / 1000) * $pointsPerThousand;
+            $pointsEarned = floor($totalPayment / 1000); // 1 point per 1000 rupiah
         }
 
         // Generate invoice
         $invoice = $this->transactionModel->generateInvoice();
 
         // Expiry time (60 minutes from now)
-        $expiryMinutes = model('SettingModel')->where('key_name', 'transaction_expired_minutes')->first()['value'] ?? 60;
-        $expiredAt = date('Y-m-d H:i:s', strtotime("+{$expiryMinutes} minutes"));
+        $expiredAt = date('Y-m-d H:i:s', strtotime('+60 minutes'));
 
         // Get payment method
         $paymentMethod = $this->paymentModel->find($paymentMethodId);
@@ -97,11 +91,11 @@ class Order extends BaseController
         $qrCode = null;
 
         if ($paymentMethod['type'] == 'va') {
-            // Generate VA number (this should integrate with actual payment gateway)
+            // Generate VA number (mockup)
             $vaNumber = $this->generateVANumber($paymentMethod['code'], $invoice);
-        } elseif (in_array($paymentMethod['type'], ['qr', 'qris'])) {
-            // Generate QR code (this should integrate with actual payment gateway)
-            $qrCode = $this->generateQRCode($invoice, $totalPayment);
+        } elseif (in_array($paymentMethod['type'], ['qris', 'ewallet'])) {
+            // Generate QR code URL (mockup)
+            $qrCode = 'QR-' . $invoice;
         }
 
         // Create transaction
@@ -179,8 +173,6 @@ class Order extends BaseController
 
     private function generateVANumber($bankCode, $invoice)
     {
-        // This is a dummy implementation
-        // In production, you should integrate with actual payment gateway API
         $bankPrefix = [
             'bca_va' => '70012',
             'bni_va' => '8808',
@@ -192,15 +184,5 @@ class Order extends BaseController
         $uniqueNumber = substr(md5($invoice), 0, 11);
         
         return $prefix . $uniqueNumber;
-    }
-
-    private function generateQRCode($invoice, $amount)
-    {
-        // This is a dummy implementation
-        // In production, you should integrate with actual payment gateway API
-        // This could return a URL to QR image or base64 encoded QR image
-        
-        helper('text');
-        return 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode("Invoice: $invoice, Amount: $amount");
     }
 }
