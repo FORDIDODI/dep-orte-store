@@ -1,6 +1,4 @@
 <?php
-
-// App\Controllers\Admin\Auth.php
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
@@ -10,15 +8,12 @@ class Auth extends BaseController
 {
     public function login()
     {
-        if (session()->get('admin_id')) {
+        // Kalau sudah login, langsung ke dashboard
+        if (session()->get('admin_logged_in')) {
             return redirect()->to(base_url('admin'));
         }
 
-        $data = [
-            'title' => 'Admin Login'
-        ];
-
-        return view('admin/auth/login', $data);
+        return view('admin/auth/login');
     }
 
     public function attemptLogin()
@@ -27,43 +22,42 @@ class Auth extends BaseController
 
         $rules = [
             'username' => 'required',
-            'password' => 'required'
+            'password' => 'required|min_length[6]'
         ];
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
-        $adminModel = model('AdminUserModel');
+        $adminModel = new AdminUserModel();
         $username = $this->request->getPost('username');
         $password = $this->request->getPost('password');
 
-        $admin = $adminModel->where('username', $username)->where('is_active', 1)->first();
+        // Cari admin berdasarkan username
+        $admin = $adminModel->where('username', $username)->first();
 
         if (!$admin) {
-            return redirect()->back()->withInput()->with('error', 'Username atau password salah');
+            return redirect()->back()->withInput()->with('error', 'Username tidak ditemukan');
         }
 
+        // Verifikasi password - SAMA SEPERTI USER
         if (!password_verify($password, $admin['password'])) {
-            return redirect()->back()->withInput()->with('error', 'Username atau password salah');
+            return redirect()->back()->withInput()->with('error', 'Password salah');
         }
 
-        // Update last login
-        $adminModel->update($admin['id'], ['last_login' => date('Y-m-d H:i:s')]);
-
+        // Set session - SAMA SEPERTI USER
         session()->set([
             'admin_id' => $admin['id'],
             'admin_username' => $admin['username'],
-            'admin_role' => $admin['role'],
             'admin_logged_in' => true
         ]);
 
-        return redirect()->to(base_url('admin'))->with('success', 'Login berhasil');
+        return redirect()->to(base_url('admin'))->with('success', 'Login berhasil!');
     }
 
     public function logout()
     {
-        session()->remove(['admin_id', 'admin_username', 'admin_role', 'admin_logged_in']);
+        session()->destroy();
         return redirect()->to(base_url('admin/login'))->with('success', 'Logout berhasil');
     }
 }

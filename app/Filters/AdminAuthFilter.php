@@ -1,5 +1,4 @@
 <?php
-// App\Filters\AdminAuthFilter.php
 namespace App\Filters;
 
 use CodeIgniter\Filters\FilterInterface;
@@ -10,8 +9,9 @@ class AdminAuthFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
+        // Cek apakah sudah login sebagai admin
         if (!session()->get('admin_logged_in')) {
-            return redirect()->to(base_url('admin/login'))->with('error', 'Silakan login sebagai admin');
+            return redirect()->to(base_url('admin/login'))->with('error', 'Silakan login terlebih dahulu');
         }
     }
 

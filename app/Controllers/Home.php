@@ -4,21 +4,18 @@ namespace App\Controllers;
 
 use App\Models\GameModel;
 use App\Models\ProductModel;
-use App\Models\PaymentMethodModel;
 use App\Models\TransactionModel;
 
 class Home extends BaseController
 {
     protected $gameModel;
     protected $productModel;
-    protected $paymentModel;
     protected $transactionModel;
 
     public function __construct()
     {
         $this->gameModel = new GameModel();
         $this->productModel = new ProductModel();
-        $this->paymentModel = new PaymentMethodModel();
         $this->transactionModel = new TransactionModel();
     }
 
@@ -45,11 +42,13 @@ class Home extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
+        $paymentModel = model('PaymentMethodModel');
+
         $data = [
             'title' => 'Top Up ' . $game['name'] . ' - BayarStore',
             'game' => $game,
             'products' => $this->productModel->getByGameId($game['id']),
-            'payment_methods' => $this->paymentModel->getActive()
+            'payment_methods' => $paymentModel->getActive()
         ];
 
         return view('home/game', $data);
@@ -75,7 +74,7 @@ class Home extends BaseController
         $transaction = $this->transactionModel->getByInvoice($invoice);
 
         if (!$transaction) {
-            return redirect()->back()->with('error', 'Transaksi tidak ditemukan');
+            return redirect()->back()->with('error', 'Transaksi tidak ditemukan. Pastikan nomor invoice benar.');
         }
 
         return redirect()->to(base_url('order/status/' . $invoice));
