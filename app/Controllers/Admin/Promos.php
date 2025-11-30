@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
@@ -28,12 +29,12 @@ class Promos extends BaseController
             'min_transaction' => $this->request->getPost('min_transaction'),
             'max_discount' => $this->request->getPost('max_discount') ?: null,
             'usage_limit' => $this->request->getPost('usage_limit') ?: null,
-            'valid_until' => $this->request->getPost('valid_until'),
-            'is_active' => 1
+            'valid_until' => $this->request->getPost('valid_until') ?: null,
+            'is_active' => $this->request->getPost('is_active') ? 1 : 0
         ];
 
         $promoModel->insert($data);
-        return redirect()->back()->with('success', 'Promo berhasil ditambahkan');
+        return redirect()->to(base_url('admin/promos'))->with('success', 'Promo berhasil ditambahkan!');
     }
 
     public function update($id)
@@ -47,12 +48,12 @@ class Promos extends BaseController
             'min_transaction' => $this->request->getPost('min_transaction'),
             'max_discount' => $this->request->getPost('max_discount') ?: null,
             'usage_limit' => $this->request->getPost('usage_limit') ?: null,
-            'valid_until' => $this->request->getPost('valid_until'),
+            'valid_until' => $this->request->getPost('valid_until') ?: null,
             'is_active' => $this->request->getPost('is_active') ? 1 : 0
         ];
 
         $promoModel->update($id, $data);
-        return redirect()->back()->with('success', 'Promo berhasil diupdate');
+        return redirect()->to(base_url('admin/promos'))->with('success', 'Promo berhasil diupdate!');
     }
 
     public function delete($id)
@@ -63,3 +64,4 @@ class Promos extends BaseController
         return $this->response->setJSON(['success' => true]);
     }
 }
+?>

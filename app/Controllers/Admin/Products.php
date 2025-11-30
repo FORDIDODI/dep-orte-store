@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
@@ -29,13 +30,14 @@ class Products extends BaseController
         $data = [
             'game_id' => $this->request->getPost('game_id'),
             'name' => $this->request->getPost('name'),
+            'description' => $this->request->getPost('description'),
             'price' => $this->request->getPost('price'),
             'discount_price' => $this->request->getPost('discount_price') ?: null,
-            'is_active' => 1
+            'is_active' => $this->request->getPost('is_active') ? 1 : 0
         ];
 
         $productModel->insert($data);
-        return redirect()->back()->with('success', 'Produk berhasil ditambahkan');
+        return redirect()->to(base_url('admin/products'))->with('success', 'Produk berhasil ditambahkan!');
     }
 
     public function update($id)
@@ -45,13 +47,14 @@ class Products extends BaseController
         $data = [
             'game_id' => $this->request->getPost('game_id'),
             'name' => $this->request->getPost('name'),
+            'description' => $this->request->getPost('description'),
             'price' => $this->request->getPost('price'),
             'discount_price' => $this->request->getPost('discount_price') ?: null,
             'is_active' => $this->request->getPost('is_active') ? 1 : 0
         ];
 
         $productModel->update($id, $data);
-        return redirect()->back()->with('success', 'Produk berhasil diupdate');
+        return redirect()->to(base_url('admin/products'))->with('success', 'Produk berhasil diupdate!');
     }
 
     public function delete($id)
@@ -62,3 +65,4 @@ class Products extends BaseController
         return $this->response->setJSON(['success' => true]);
     }
 }
+?>
