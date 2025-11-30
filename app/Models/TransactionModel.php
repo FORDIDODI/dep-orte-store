@@ -41,7 +41,7 @@ class TransactionModel extends Model
                     ->join('games', 'games.id = transactions.game_id')
                     ->join('products', 'products.id = transactions.product_id')
                     ->where('transactions.user_id', $userId)
-                    ->orderBy('transactions.created_at', 'DESC')
+                    ->orderBy('transactions.id', 'DESC')
                     ->findAll($limit);
     }
 

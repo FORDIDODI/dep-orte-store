@@ -38,7 +38,7 @@ class Dashboard extends BaseController
                 ->join('games', 'games.id = transactions.game_id')
                 ->join('products', 'products.id = transactions.product_id')
                 ->join('users', 'users.id = transactions.user_id', 'left')
-                ->orderBy('transactions.created_at', 'DESC')
+                ->orderBy('transactions.id', 'DESC')
                 ->limit(10)
                 ->find()
         ];

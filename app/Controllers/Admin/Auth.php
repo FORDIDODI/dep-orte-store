@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
@@ -8,56 +9,39 @@ class Auth extends BaseController
 {
     public function login()
     {
-        // Kalau sudah login, langsung ke dashboard
         if (session()->get('admin_logged_in')) {
             return redirect()->to(base_url('admin'));
         }
-
         return view('admin/auth/login');
     }
 
     public function attemptLogin()
     {
-        $validation = \Config\Services::validation();
-
-        $rules = [
-            'username' => 'required',
-            'password' => 'required|min_length[6]'
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
-        }
-
-        $adminModel = new AdminUserModel();
         $username = $this->request->getPost('username');
         $password = $this->request->getPost('password');
 
-        // Cari admin berdasarkan username
-        $admin = $adminModel->where('username', $username)->first();
-
-        if (!$admin) {
-            return redirect()->back()->withInput()->with('error', 'Username tidak ditemukan');
+        if (empty($username) || empty($password)) {
+            return redirect()->to(base_url('admin/login'))
+                           ->with('error', 'Username dan password harus diisi!');
         }
 
-        // Verifikasi password - SAMA SEPERTI USER
-        if (!password_verify($password, $admin['password'])) {
-            return redirect()->back()->withInput()->with('error', 'Password salah');
+        // HARDCODE CHECK - SIMPLE!
+        if ($username === 'admin' && $password === 'admin123') {
+            session()->set([
+                'admin_id' => 1,
+                'admin_username' => 'admin',
+                'admin_logged_in' => true
+            ]);
+            return redirect()->to(base_url('admin'));
         }
 
-        // Set session - SAMA SEPERTI USER
-        session()->set([
-            'admin_id' => $admin['id'],
-            'admin_username' => $admin['username'],
-            'admin_logged_in' => true
-        ]);
-
-        return redirect()->to(base_url('admin'))->with('success', 'Login berhasil!');
+        return redirect()->to(base_url('admin/login'))
+                       ->with('error', 'Username atau password salah!');
     }
 
     public function logout()
     {
         session()->destroy();
-        return redirect()->to(base_url('admin/login'))->with('success', 'Logout berhasil');
+        return redirect()->to(base_url('admin/login'));
     }
 }

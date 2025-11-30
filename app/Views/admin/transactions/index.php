@@ -37,15 +37,12 @@
 
         <!-- Main Content -->
         <main class="flex-1 p-8 overflow-y-auto">
-            <div class="mb-6">
-                <h1 class="text-3xl font-bold mb-2">Kelola Transaksi</h1>
-                <p class="text-gray-400">Manage semua transaksi user</p>
-            </div>
+            <h1 class="text-3xl font-bold mb-6">Kelola Transaksi</h1>
 
             <!-- Filter & Search -->
             <div class="bg-gray-800 rounded-2xl p-6 mb-6">
                 <form method="GET" class="flex gap-4 flex-wrap">
-                    <select name="status" class="bg-gray-900 border-2 border-gray-700 rounded-xl px-4 py-2 focus:border-indigo-500 focus:outline-none">
+                    <select name="status" class="bg-gray-900 border-2 border-gray-700 rounded-xl px-4 py-2">
                         <option value="all" <?= $current_status == 'all' ? 'selected' : '' ?>>Semua Status</option>
                         <option value="pending" <?= $current_status == 'pending' ? 'selected' : '' ?>>Pending</option>
                         <option value="processing" <?= $current_status == 'processing' ? 'selected' : '' ?>>Processing</option>
@@ -56,11 +53,11 @@
 
                     <input type="text" 
                            name="search" 
-                           value="<?= $this->request->getGet('search') ?>"
-                           placeholder="Cari invoice, user ID, username..."
-                           class="flex-1 bg-gray-900 border-2 border-gray-700 rounded-xl px-4 py-2 focus:border-indigo-500 focus:outline-none">
+                           value="<?= esc($search ?? '') ?>"
+                           placeholder="Cari invoice, user ID..."
+                           class="flex-1 bg-gray-900 border-2 border-gray-700 rounded-xl px-4 py-2">
 
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 px-6 py-2 rounded-xl font-semibold transition">
+                    <button type="submit" class="bg-indigo-600 px-6 py-2 rounded-xl font-semibold">
                         <i class="fas fa-search mr-2"></i> Filter
                     </button>
                 </form>
@@ -72,50 +69,44 @@
                     <table class="w-full">
                         <thead class="bg-gray-900">
                             <tr>
-                                <th class="text-left py-4 px-6 text-gray-400 font-semibold">Invoice</th>
-                                <th class="text-left py-4 px-6 text-gray-400 font-semibold">Game</th>
-                                <th class="text-left py-4 px-6 text-gray-400 font-semibold">Produk</th>
-                                <th class="text-left py-4 px-6 text-gray-400 font-semibold">User</th>
-                                <th class="text-left py-4 px-6 text-gray-400 font-semibold">Total</th>
-                                <th class="text-left py-4 px-6 text-gray-400 font-semibold">Status</th>
-                                <th class="text-left py-4 px-6 text-gray-400 font-semibold">Tanggal</th>
-                                <th class="text-left py-4 px-6 text-gray-400 font-semibold">Aksi</th>
+                                <th class="text-left py-4 px-6">Invoice</th>
+                                <th class="text-left py-4 px-6">Game</th>
+                                <th class="text-left py-4 px-6">User</th>
+                                <th class="text-left py-4 px-6">Total</th>
+                                <th class="text-left py-4 px-6">Status</th>
+                                <th class="text-left py-4 px-6">Tanggal</th>
+                                <th class="text-left py-4 px-6">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (empty($transactions)): ?>
                             <tr>
-                                <td colspan="8" class="text-center py-8 text-gray-400">
-                                    <i class="fas fa-inbox text-4xl mb-3"></i>
-                                    <p>Tidak ada transaksi ditemukan</p>
+                                <td colspan="7" class="text-center py-8 text-gray-400">
+                                    Tidak ada transaksi
                                 </td>
                             </tr>
                             <?php else: ?>
                                 <?php foreach ($transactions as $trx): ?>
-                                <tr class="border-b border-gray-700 hover:bg-gray-700/30 transition">
+                                <tr class="border-b border-gray-700 hover:bg-gray-700/30">
                                     <td class="py-4 px-6 font-mono text-sm"><?= esc($trx['invoice_number']) ?></td>
                                     <td class="py-4 px-6"><?= esc($trx['game_name']) ?></td>
-                                    <td class="py-4 px-6 text-sm"><?= esc($trx['product_name']) ?></td>
-                                    <td class="py-4 px-6 text-sm"><?= $trx['username'] ?? 'Guest' ?></td>
+                                    <td class="py-4 px-6"><?= $trx['username'] ?? 'Guest' ?></td>
                                     <td class="py-4 px-6 font-semibold">Rp <?= number_format($trx['total_payment'], 0, ',', '.') ?></td>
                                     <td class="py-4 px-6">
                                         <?php
-                                        $statusColors = [
+                                        $colors = [
                                             'success' => 'bg-green-500/20 text-green-400',
                                             'pending' => 'bg-yellow-500/20 text-yellow-400',
                                             'processing' => 'bg-blue-500/20 text-blue-400',
                                             'failed' => 'bg-red-500/20 text-red-400',
                                             'expired' => 'bg-gray-500/20 text-gray-400'
                                         ];
-                                        $colorClass = $statusColors[$trx['status']] ?? 'bg-gray-500/20 text-gray-400';
                                         ?>
-                                        <span class="<?= $colorClass ?> px-3 py-1 rounded-full text-xs font-semibold">
+                                        <span class="<?= $colors[$trx['status']] ?> px-3 py-1 rounded-full text-xs">
                                             <?= ucfirst($trx['status']) ?>
                                         </span>
                                     </td>
-                                    <td class="py-4 px-6 text-gray-400 text-sm">
-                                        <?= date('d M Y H:i', strtotime($trx['created_at'])) ?>
-                                    </td>
+                                    <td class="py-4 px-6 text-sm"><?= date('d M Y', strtotime($trx['created_at'])) ?></td>
                                     <td class="py-4 px-6">
                                         <a href="<?= base_url('admin/transactions/detail/' . $trx['id']) ?>" 
                                            class="text-indigo-400 hover:text-indigo-300">
@@ -128,13 +119,6 @@
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Pagination -->
-                <?php if ($pager): ?>
-                <div class="p-6 border-t border-gray-700">
-                    <?= $pager->links() ?>
-                </div>
-                <?php endif; ?>
             </div>
         </main>
     </div>

@@ -11,7 +11,7 @@ class Promos extends BaseController
         
         $data = [
             'title' => 'Kelola Promo',
-            'promos' => $promoModel->orderBy('created_at', 'DESC')->findAll()
+            'promos' => $promoModel->orderBy('id', 'DESC')->findAll()
         ];
 
         return view('admin/promos/index', $data);

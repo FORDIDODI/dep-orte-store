@@ -14,7 +14,7 @@ class Products extends BaseController
             'title' => 'Kelola Produk',
             'products' => $productModel->select('products.*, games.name as game_name')
                 ->join('games', 'games.id = products.game_id')
-                ->orderBy('products.created_at', 'DESC')
+                ->orderBy('products.id', 'DESC')
                 ->findAll(),
             'games' => $gameModel->where('is_active', 1)->findAll()
         ];
