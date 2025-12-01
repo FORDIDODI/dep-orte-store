@@ -1,53 +1,55 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= esc($title ?? 'BayarStore') ?></title>
-    
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         body {
             background: linear-gradient(135deg, #1e1b29 0%, #2a2738 100%);
             min-height: 100vh;
         }
+
         .gradient-primary {
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
         }
+
         .card-hover:hover {
             transform: translateY(-5px);
             transition: all 0.3s ease;
         }
     </style>
 </head>
+
 <body class="text-white">
     <!-- Header -->
     <header class="bg-gray-800/80 backdrop-blur-lg sticky top-0 z-50 border-b border-gray-700">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between py-4">
                 <!-- Logo -->
-                <a href="<?= base_url('/') ?>" class="text-2xl font-bold">
-                    <span class="bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
-                        BayarStore
-                    </span>
+                <a href="<?= base_url('/') ?>" class="flex items-center invert">
+                    <img src="<?= base_url('assets/images/logo.png') ?>" alt="BayarStore" class="h-10">
                 </a>
-                
+
                 <!-- Navigation -->
                 <nav class="hidden md:flex items-center gap-8">
-                    <a href="<?= base_url('/') ?>" 
-                       class="text-gray-300 hover:text-white transition <?= uri_string() == '' ? 'text-white font-semibold' : '' ?>">
+                    <a href="<?= base_url('/') ?>"
+                        class="text-gray-300 hover:text-white transition <?= uri_string() == '' ? 'text-white font-semibold' : '' ?>">
                         Topup
                     </a>
-                    <a href="<?= base_url('cek-transaksi') ?>" 
-                       class="text-gray-300 hover:text-white transition <?= uri_string() == 'cek-transaksi' ? 'text-white font-semibold' : '' ?>">
+                    <a href="<?= base_url('cek-transaksi') ?>"
+                        class="text-gray-300 hover:text-white transition <?= uri_string() == 'cek-transaksi' ? 'text-white font-semibold' : '' ?>">
                         Cek Transaksi
                     </a>
-                    
+
                     <?php if (session()->get('logged_in')): ?>
                         <a href="<?= base_url('dashboard') ?>" class="text-gray-300 hover:text-white transition">
                             Dashboard
@@ -92,21 +94,21 @@
 
     <!-- Alerts -->
     <?php if (session()->getFlashdata('success')): ?>
-    <div class="container mx-auto px-4 mt-4">
-        <div class="bg-green-500/20 border border-green-500 text-green-300 px-6 py-4 rounded-lg">
-            <i class="fas fa-check-circle mr-2"></i>
-            <?= session()->getFlashdata('success') ?>
+        <div class="container mx-auto px-4 mt-4">
+            <div class="bg-green-500/20 border border-green-500 text-green-300 px-6 py-4 rounded-lg">
+                <i class="fas fa-check-circle mr-2"></i>
+                <?= session()->getFlashdata('success') ?>
+            </div>
         </div>
-    </div>
     <?php endif; ?>
 
     <?php if (session()->getFlashdata('error')): ?>
-    <div class="container mx-auto px-4 mt-4">
-        <div class="bg-red-500/20 border border-red-500 text-red-300 px-6 py-4 rounded-lg">
-            <i class="fas fa-exclamation-circle mr-2"></i>
-            <?= session()->getFlashdata('error') ?>
+        <div class="container mx-auto px-4 mt-4">
+            <div class="bg-red-500/20 border border-red-500 text-red-300 px-6 py-4 rounded-lg">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <?= session()->getFlashdata('error') ?>
+            </div>
         </div>
-    </div>
     <?php endif; ?>
 
     <!-- Main Content -->
@@ -187,4 +189,5 @@
 
     <?= $this->renderSection('scripts') ?>
 </body>
+
 </html>
