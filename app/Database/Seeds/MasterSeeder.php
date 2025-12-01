@@ -8,15 +8,15 @@ class MasterSeeder extends Seeder
 {
     public function run()
     {
-        // 1. Insert Games
+        // 1. Insert Games (dengan gambar yang sudah diupload)
         $games = [
-            ['name' => 'Mobile Legends', 'slug' => 'mobile-legends', 'image' => 'ml.jpg', 'category' => 'MOBA', 'is_popular' => 1],
-            ['name' => 'Free Fire', 'slug' => 'free-fire', 'image' => 'ff.jpg', 'category' => 'Battle Royale', 'is_popular' => 1],
-            ['name' => 'PUBG Mobile', 'slug' => 'pubg-mobile', 'image' => 'pubg.jpg', 'category' => 'Battle Royale', 'is_popular' => 1],
-            ['name' => 'Genshin Impact', 'slug' => 'genshin-impact', 'image' => 'genshin.jpg', 'category' => 'RPG', 'is_popular' => 1],
-            ['name' => 'Call of Duty Mobile', 'slug' => 'codm', 'image' => 'codm.jpg', 'category' => 'FPS', 'is_popular' => 1],
-            ['name' => 'Valorant', 'slug' => 'valorant', 'image' => 'valorant.jpg', 'category' => 'FPS', 'is_popular' => 0],
-            ['name' => 'Clash of Clans', 'slug' => 'coc', 'image' => 'coc.jpg', 'category' => 'Strategy', 'is_popular' => 0],
+            ['name' => 'Mobile Legends', 'slug' => 'mobile-legends', 'image' => '1764556145_1a79696c188e85b80c5c.jpg', 'category' => 'MOBA', 'is_popular' => 1, 'is_active' => 1],
+            ['name' => 'Free Fire', 'slug' => 'free-fire', 'image' => '1764556137_f56a07582c5aa76e7019.jpg', 'category' => 'Battle Royale', 'is_popular' => 1, 'is_active' => 1],
+            ['name' => 'PUBG Mobile', 'slug' => 'pubg-mobile', 'image' => '1764556127_18996e333f4dde6de30a.webp', 'category' => 'Battle Royale', 'is_popular' => 1, 'is_active' => 1],
+            ['name' => 'Genshin Impact', 'slug' => 'genshin-impact', 'image' => '1764556089_247c1982be4da206ca7c.webp', 'category' => 'RPG', 'is_popular' => 1, 'is_active' => 1],
+            ['name' => 'Call of Duty Mobile', 'slug' => 'codm', 'image' => '1764556019_bd216a282167ee0244db.webp', 'category' => 'FPS', 'is_popular' => 1, 'is_active' => 1],
+            ['name' => 'Valorant', 'slug' => 'valorant', 'image' => '1764556011_802812b7ae2098b9c8fd.jpg', 'category' => 'FPS', 'is_popular' => 0, 'is_active' => 1],
+            ['name' => 'Clash of Clans', 'slug' => 'coc', 'image' => '1764555974_c73a4e19623eaf4fcec5.webp', 'category' => 'Strategy', 'is_popular' => 0, 'is_active' => 1],
         ];
         $this->db->table('games')->insertBatch($games);
 
