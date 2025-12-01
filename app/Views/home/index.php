@@ -120,9 +120,10 @@
                class="relative h-48 rounded-xl overflow-hidden card-hover group">
                 <img src="<?= base_url('assets/images/games/' . $game['image']) ?>" 
                      alt="<?= esc($game['name']) ?>" 
-                     class="w-full h-full object-cover"
-                     onerror="this.src='https://via.placeholder.com/300x200/4a5568/ffffff?text=<?= urlencode($game['name']) ?>'">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4">
+                     class="w-full h-full object-cover bg-gray-700 transition-transform duration-300 group-hover:scale-110"
+                     loading="lazy"
+                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\'%3E%3Crect fill=\'%234a5568\' width=\'300\' height=\'200\'/%3E%3Ctext fill=\'%23ffffff\' font-family=\'Arial\' font-size=\'14\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3E<?= urlencode($game['name']) ?>%3C/text%3E%3C/svg%3E';">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-4">
                     <h3 class="font-bold text-lg"><?= esc($game['name']) ?></h3>
                     <p class="text-gray-300 text-sm"><?= esc($game['category']) ?></p>
                 </div>
@@ -139,10 +140,13 @@
             <?php foreach ($all_games as $game): ?>
             <a href="<?= base_url('game/' . $game['slug']) ?>" 
                class="bg-gray-800 rounded-xl overflow-hidden card-hover group">
-                <img src="<?= base_url('assets/images/games/' . $game['image']) ?>" 
-                     alt="<?= esc($game['name']) ?>" 
-                     class="w-full h-40 object-cover"
-                     onerror="this.src='https://via.placeholder.com/300x200/4a5568/ffffff?text=<?= urlencode($game['name']) ?>'">
+                <div class="relative overflow-hidden">
+                    <img src="<?= base_url('assets/images/games/' . $game['image']) ?>" 
+                         alt="<?= esc($game['name']) ?>" 
+                         class="w-full h-40 object-cover bg-gray-700 transition-transform duration-300 group-hover:scale-110"
+                         loading="lazy"
+                         onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\'%3E%3Crect fill=\'%234a5568\' width=\'300\' height=\'200\'/%3E%3Ctext fill=\'%23ffffff\' font-family=\'Arial\' font-size=\'12\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3E<?= urlencode($game['name']) ?>%3C/text%3E%3C/svg%3E';">
+                </div>
                 <div class="p-4">
                     <h4 class="font-semibold group-hover:text-indigo-400 transition">
                         <?= esc($game['name']) ?>

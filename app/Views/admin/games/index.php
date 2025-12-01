@@ -68,8 +68,8 @@
                     <div class="relative">
                         <img src="<?= base_url('assets/images/games/' . $game['image']) ?>" 
                              alt="<?= esc($game['name']) ?>"
-                             class="w-full h-40 object-cover"
-                             onerror="this.src='https://via.placeholder.com/300x200/4a5568/ffffff?text=<?= urlencode($game['name']) ?>'">
+                             class="w-full h-40 object-cover bg-gray-700"
+                             onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\'%3E%3Crect fill=\'%234a5568\' width=\'300\' height=\'200\'/%3E%3Ctext fill=\'%23ffffff\' font-family=\'Arial\' font-size=\'16\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3E<?= urlencode($game['name']) ?>%3C/text%3E%3C/svg%3E';">
                         <div class="absolute top-2 right-2 flex gap-2">
                             <button onclick='editGame(<?= json_encode($game) ?>)' 
                                     class="bg-blue-600 hover:bg-blue-700 w-8 h-8 rounded-full flex items-center justify-center">
@@ -118,10 +118,14 @@
                 <!-- Image Preview -->
                 <div class="mb-6">
                     <label class="block text-gray-300 mb-2">Preview Gambar</label>
-                    <div class="relative w-full h-48 bg-gray-900 rounded-xl overflow-hidden">
+                    <div class="relative w-full h-48 bg-gray-900 rounded-xl overflow-hidden border-2 border-gray-700">
                         <img id="imagePreview" 
-                             src="https://via.placeholder.com/400x200/4a5568/ffffff?text=Upload+Image" 
-                             class="w-full h-full object-cover">
+                             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect fill='%234a5568' width='400' height='200'/%3E%3Ctext fill='%23ffffff' font-family='Arial' font-size='18' x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle'%3EUpload Image%3C/text%3E%3C/svg%3E" 
+                             class="w-full h-full object-cover"
+                             alt="Preview">
+                        <div id="imagePreviewOverlay" class="absolute inset-0 bg-black/50 flex items-center justify-center hidden">
+                            <span class="text-white text-sm">Loading...</span>
+                        </div>
                     </div>
                 </div>
 
@@ -130,13 +134,16 @@
                     <label class="block text-gray-300 mb-2">
                         <i class="fas fa-image mr-2"></i>Upload Gambar
                     </label>
-                    <input type="file" 
-                           name="image" 
-                           id="imageInput"
-                           accept="image/*"
-                           onchange="previewImage(this)"
-                           class="w-full bg-gray-900 border-2 border-gray-700 rounded-xl px-4 py-3 focus:border-indigo-500 focus:outline-none">
+                    <div class="relative">
+                        <input type="file" 
+                               name="image" 
+                               id="imageInput"
+                               accept="image/jpeg,image/jpg,image/png,image/webp"
+                               onchange="previewImage(this)"
+                               class="w-full bg-gray-900 border-2 border-gray-700 rounded-xl px-4 py-3 focus:border-indigo-500 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-500 file:text-white hover:file:bg-indigo-600">
+                    </div>
                     <p class="text-gray-400 text-sm mt-1">Format: JPG, PNG, WEBP. Max: 2MB</p>
+                    <p id="imageError" class="text-red-400 text-sm mt-1 hidden"></p>
                 </div>
 
                 <!-- Name -->
@@ -253,12 +260,66 @@
 
         // Preview image
         function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            const overlay = document.getElementById('imagePreviewOverlay');
+            const errorMsg = document.getElementById('imageError');
+            
+            // Reset error message
+            if (errorMsg) {
+                errorMsg.classList.add('hidden');
+                errorMsg.textContent = '';
+            }
+            
             if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const maxSize = 2 * 1024 * 1024; // 2MB
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                
+                // Validate file size
+                if (file.size > maxSize) {
+                    if (errorMsg) {
+                        errorMsg.textContent = 'Ukuran file terlalu besar! Maksimal 2MB.';
+                        errorMsg.classList.remove('hidden');
+                    }
+                    input.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                if (!allowedTypes.includes(file.type)) {
+                    if (errorMsg) {
+                        errorMsg.textContent = 'Format file tidak didukung! Gunakan JPG, PNG, atau WEBP.';
+                        errorMsg.classList.remove('hidden');
+                    }
+                    input.value = '';
+                    return;
+                }
+                
+                // Show loading overlay
+                if (overlay) {
+                    overlay.classList.remove('hidden');
+                }
+                
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('imagePreview').src = e.target.result;
+                    preview.src = e.target.result;
+                    if (overlay) {
+                        overlay.classList.add('hidden');
+                    }
                 };
-                reader.readAsDataURL(input.files[0]);
+                reader.onerror = function() {
+                    if (errorMsg) {
+                        errorMsg.textContent = 'Gagal membaca file!';
+                        errorMsg.classList.remove('hidden');
+                    }
+                    if (overlay) {
+                        overlay.classList.add('hidden');
+                    }
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Reset to default if no file selected
+                preview.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'200\'%3E%3Crect fill=\'%234a5568\' width=\'400\' height=\'200\'/%3E%3Ctext fill=\'%23ffffff\' font-family=\'Arial\' font-size=\'18\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EUpload Image%3C/text%3E%3C/svg%3E';
             }
         }
 
@@ -269,7 +330,13 @@
                 document.getElementById('modalTitle').textContent = 'Tambah Game';
                 document.getElementById('gameForm').action = '<?= base_url('admin/games/store') ?>';
                 document.getElementById('gameForm').reset();
-                document.getElementById('imagePreview').src = 'https://via.placeholder.com/400x200/4a5568/ffffff?text=Upload+Image';
+                document.getElementById('imageInput').value = '';
+                document.getElementById('imagePreview').src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'200\'%3E%3Crect fill=\'%234a5568\' width=\'400\' height=\'200\'/%3E%3Ctext fill=\'%23ffffff\' font-family=\'Arial\' font-size=\'18\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EUpload Image%3C/text%3E%3C/svg%3E';
+                const errorMsg = document.getElementById('imageError');
+                if (errorMsg) {
+                    errorMsg.classList.add('hidden');
+                    errorMsg.textContent = '';
+                }
             }
         }
 
@@ -289,7 +356,12 @@
             document.getElementById('gameActive').checked = game.is_active == 1;
             
             // Set image preview
-            document.getElementById('imagePreview').src = '<?= base_url('assets/images/games/') ?>' + game.image;
+            const imageUrl = '<?= base_url('assets/images/games/') ?>' + game.image;
+            const preview = document.getElementById('imagePreview');
+            preview.src = imageUrl;
+            preview.onerror = function() {
+                this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'200\'%3E%3Crect fill=\'%234a5568\' width=\'400\' height=\'200\'/%3E%3Ctext fill=\'%23ffffff\' font-family=\'Arial\' font-size=\'18\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3E<?= urlencode('No Image') ?>%3C/text%3E%3C/svg%3E';
+            };
         }
 
         // Close modal

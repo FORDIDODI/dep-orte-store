@@ -4,14 +4,19 @@
 
 <div class="container mx-auto px-4">
     <!-- Game Banner -->
-    <div class="relative h-64 rounded-2xl overflow-hidden mb-8">
+    <div class="relative h-64 md:h-80 rounded-2xl overflow-hidden mb-8">
         <img src="<?= base_url('assets/images/games/' . $game['image']) ?>" 
              alt="<?= esc($game['name']) ?>" 
-             class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent flex items-end">
-            <div class="p-8">
-                <h1 class="text-4xl md:text-5xl font-bold mb-2"><?= esc($game['name']) ?></h1>
-                <p class="text-gray-300"><?= esc($game['category']) ?></p>
+             class="w-full h-full object-cover bg-gray-700"
+             loading="eager"
+             onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'400\'%3E%3Crect fill=\'%234a5568\' width=\'800\' height=\'400\'/%3E%3Ctext fill=\'%23ffffff\' font-family=\'Arial\' font-size=\'32\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3E<?= urlencode($game['name']) ?>%3C/text%3E%3C/svg%3E';">
+        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent flex items-end">
+            <div class="p-6 md:p-8 w-full">
+                <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-2"><?= esc($game['name']) ?></h1>
+                <p class="text-gray-300 text-lg"><?= esc($game['category']) ?></p>
+                <?php if (!empty($game['description'])): ?>
+                <p class="text-gray-400 mt-2 text-sm md:text-base"><?= esc($game['description']) ?></p>
+                <?php endif; ?>
             </div>
         </div>
     </div>
