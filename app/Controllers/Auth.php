@@ -21,7 +21,7 @@ class Auth extends BaseController
         }
 
         $data = [
-            'title' => 'Login - BayarStore'
+            'title' => 'Login - Deporte Store'
         ];
 
         return view('auth/login', $data);
@@ -70,7 +70,7 @@ class Auth extends BaseController
         }
 
         $data = [
-            'title' => 'Register - BayarStore'
+            'title' => 'Register - Deporte Store'
         ];
 
         return view('auth/register', $data);
