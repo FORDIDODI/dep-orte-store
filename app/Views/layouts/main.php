@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= esc($title ?? 'BayarStore') ?></title>
+    <title><?= esc($title ?? 'Deporte Store') ?></title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -36,7 +36,7 @@
             <div class="flex items-center justify-between py-4">
                 <!-- Logo -->
                 <a href="<?= base_url('/') ?>" class="flex items-center invert">
-                    <img src="<?= base_url('assets/images/logo.png') ?>" alt="BayarStore" class="h-10">
+                    <img src="<?= base_url('assets/images/logo.png') ?>" alt="Deporte Store" class="h-10">
                 </a>
 
                 <!-- Navigation -->
@@ -165,7 +165,7 @@
             </div>
 
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; <?= date('Y') ?> BayarStore.com All rights reserved</p>
+                <p>&copy; <?= date('Y') ?> DeporteStore.com All rights reserved</p>
             </div>
         </div>
     </footer>

@@ -22,7 +22,7 @@ class Home extends BaseController
     public function index()
     {
         $data = [
-            'title' => 'BayarStore - Top Up Game Murah & Cepat',
+            'title' => 'Deporte Store - Top Up Game Murah & Cepat',
             'popular_games' => $this->gameModel->getPopularGames(),
             'all_games' => $this->gameModel->where('is_active', true)->findAll(),
             'flash_sales' => $this->productModel->where('discount_price IS NOT NULL')
@@ -45,7 +45,7 @@ class Home extends BaseController
         $paymentModel = model('PaymentMethodModel');
 
         $data = [
-            'title' => 'Top Up ' . $game['name'] . ' - BayarStore',
+            'title' => 'Top Up ' . $game['name'] . ' - Deporte Store',
             'game' => $game,
             'products' => $this->productModel->getByGameId($game['id']),
             'payment_methods' => $paymentModel->getActive()
@@ -57,7 +57,7 @@ class Home extends BaseController
     public function cekTransaksi()
     {
         $data = [
-            'title' => 'Cek Transaksi - BayarStore'
+            'title' => 'Cek Transaksi - Deporte Store'
         ];
 
         return view('home/cek_transaksi', $data);

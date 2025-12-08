@@ -12,7 +12,7 @@
                 <div class="slide fade active">
                     <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
                         <div class="text-center px-6">
-                            <h2 class="text-4xl md:text-6xl font-bold mb-4">🎮 Welcome to BayarStore</h2>
+                            <h2 class="text-4xl md:text-6xl font-bold mb-4">🎮 Welcome to Deporte Store</h2>
                             <p class="text-xl md:text-2xl mb-6">Top Up Game Murah & Cepat!</p>
                             <a href="#games" class="inline-block bg-white text-purple-600 px-8 py-3 rounded-xl font-bold hover:bg-gray-100 transition">
                                 Mulai Top Up

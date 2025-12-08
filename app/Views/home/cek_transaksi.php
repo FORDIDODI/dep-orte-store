@@ -50,7 +50,7 @@
                     </a>
                     <a href="#" class="flex items-center gap-3 text-pink-400 hover:text-pink-300 transition">
                         <i class="fab fa-instagram text-xl"></i>
-                        <span>DM Instagram @bayarstore</span>
+                        <span>DM Instagram @DeporteStore</span>
                     </a>
                 </div>
             </div>
