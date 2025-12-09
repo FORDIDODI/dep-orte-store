@@ -96,9 +96,9 @@
                             Rp <?= number_format($flash['discount_price'], 0, ',', '.') ?>
                         </span>
                     </div>
-                    <button class="gradient-primary w-full py-2 rounded-lg font-semibold hover:opacity-90 transition">
+                    <a href="<?= base_url('game/mobile-legends') ?>" class="inline-block gradient-primary w-full py-2 rounded-lg font-semibold hover:opacity-90 transition">
                         BELI SEKARANG
-                    </button>
+                    </a>
                 </div>
             </div>
             <?php endforeach; ?>
