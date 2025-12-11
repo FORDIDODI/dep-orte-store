@@ -197,4 +197,90 @@ class Order extends BaseController
         
         return $prefix . $uniqueNumber;
     }
+
+    /**
+     * Upload bukti pembayaran
+     */
+    public function uploadPaymentProof($invoice)
+    {
+        $transaction = $this->transactionModel->getByInvoice($invoice);
+
+        if (!$transaction) {
+            return redirect()->back()->with('error', 'Transaksi tidak ditemukan');
+        }
+
+        // Hanya bisa upload jika status pending
+        if ($transaction['status'] !== 'pending') {
+            return redirect()->back()->with('error', 'Tidak dapat mengupload bukti pembayaran untuk transaksi ini');
+        }
+
+        // Validasi file
+        $validation = \Config\Services::validation();
+        $rules = [
+            'payment_proof' => [
+                'rules' => 'uploaded[payment_proof]|max_size[payment_proof,2048]|is_image[payment_proof]|mime_in[payment_proof,image/jpg,image/jpeg,image/png,image/webp]',
+                'errors' => [
+                    'uploaded' => 'Silahkan pilih file bukti pembayaran',
+                    'max_size' => 'Ukuran file maksimal 2MB',
+                    'is_image' => 'File harus berupa gambar',
+                    'mime_in' => 'Format file harus JPG, JPEG, PNG, atau WEBP'
+                ]
+            ]
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->with('error', $validation->getError('payment_proof'));
+        }
+
+        $file = $this->request->getFile('payment_proof');
+
+        if ($file->isValid() && !$file->hasMoved()) {
+            // Generate nama file unik
+            $newName = $invoice . '_' . date('YmdHis') . '.' . $file->getExtension();
+            
+            // Pindahkan file ke folder uploads/payment_proofs
+            $file->move(WRITEPATH . 'uploads/payment_proofs', $newName);
+
+            // Update transaksi
+            $this->transactionModel->update($transaction['id'], [
+                'payment_proof' => $newName,
+                'status' => 'processing', // Ubah status ke processing setelah upload bukti
+                'paid_at' => date('Y-m-d H:i:s')
+            ]);
+
+            return redirect()->to(base_url('order/status/' . $invoice))->with('success', 'Bukti pembayaran berhasil diupload. Transaksi sedang diverifikasi.');
+        }
+
+        return redirect()->back()->with('error', 'Gagal mengupload file. Silahkan coba lagi.');
+    }
+
+    /**
+     * Tampilkan gambar bukti pembayaran
+     */
+    public function viewPaymentProof($filename)
+    {
+        // Sanitize filename untuk keamanan
+        $filename = basename($filename);
+        $filepath = WRITEPATH . 'uploads/payment_proofs/' . $filename;
+
+        if (!file_exists($filepath)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('File tidak ditemukan');
+        }
+
+        // Determine MIME type
+        $extension = pathinfo($filepath, PATHINFO_EXTENSION);
+        $mimeTypes = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'webp' => 'image/webp',
+            'gif' => 'image/gif'
+        ];
+        $mimeType = $mimeTypes[strtolower($extension)] ?? 'application/octet-stream';
+
+        // Return file sebagai response
+        return $this->response
+            ->setHeader('Content-Type', $mimeType)
+            ->setBody(file_get_contents($filepath));
+    }
 }

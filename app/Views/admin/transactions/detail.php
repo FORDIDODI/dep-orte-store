@@ -158,6 +158,40 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Bukti Pembayaran -->
+                    <?php if (!empty($transaction['payment_proof'])): ?>
+                    <div class="bg-gray-800 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold mb-4">
+                            <i class="fas fa-receipt mr-2 text-green-400"></i>
+                            Bukti Pembayaran
+                        </h3>
+                        <div class="text-center">
+                            <img src="<?= base_url('order/payment-proof/' . $transaction['payment_proof']) ?>" 
+                                 alt="Bukti Pembayaran" 
+                                 class="max-w-full max-h-80 rounded-lg mx-auto cursor-pointer hover:opacity-90 transition shadow-lg"
+                                 onclick="openImageModal(this.src)">
+                            <?php if (!empty($transaction['paid_at'])): ?>
+                            <p class="text-gray-400 text-sm mt-4">
+                                <i class="fas fa-clock mr-1"></i>
+                                Diupload pada <?= date('d M Y H:i:s', strtotime($transaction['paid_at'])) ?>
+                            </p>
+                            <?php endif; ?>
+                            <p class="text-gray-500 text-xs mt-1">Klik gambar untuk memperbesar</p>
+                        </div>
+                    </div>
+                    <?php else: ?>
+                    <div class="bg-gray-800 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold mb-4">
+                            <i class="fas fa-receipt mr-2 text-gray-500"></i>
+                            Bukti Pembayaran
+                        </h3>
+                        <div class="text-center py-8">
+                            <i class="fas fa-image text-gray-600 text-5xl mb-4"></i>
+                            <p class="text-gray-500">Belum ada bukti pembayaran yang diupload</p>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Payment Summary -->
@@ -201,7 +235,42 @@
         </main>
     </div>
 
+    <!-- Image Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4">
+        <button onclick="closeImageModal()" class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="modalImage" src="" alt="Bukti Pembayaran" class="max-w-full max-h-full rounded-lg">
+    </div>
+
     <script>
+    // Image modal functions
+    function openImageModal(src) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        modalImg.src = src;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeImageModal() {
+        const modal = document.getElementById('imageModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeImageModal();
+    });
+
+    // Close modal on click outside
+    document.getElementById('imageModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeImageModal();
+    });
+
     <?php if (in_array($transaction['status'], ['pending', 'processing']) && !empty($transaction['expired_at'])): ?>
     // Countdown Timer untuk Admin (24 hours)
     const adminExpiredAt = new Date('<?= $transaction['expired_at'] ?>').getTime();

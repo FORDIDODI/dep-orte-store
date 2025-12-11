@@ -12,6 +12,8 @@ $routes->get('game/(:segment)', 'Home::game/$1');
 $routes->post('order/create', 'Order::create');
 $routes->get('order/status/(:segment)', 'Order::status/$1');
 $routes->post('order/check-promo', 'Order::checkPromo');
+$routes->post('order/upload-payment-proof/(:segment)', 'Order::uploadPaymentProof/$1');
+$routes->get('order/payment-proof/(:segment)', 'Order::viewPaymentProof/$1');
 $routes->get('cek-transaksi', 'Home::cekTransaksi');
 $routes->post('cek-transaksi/search', 'Home::searchTransaction');
 
