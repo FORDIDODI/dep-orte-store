@@ -60,6 +60,7 @@
                             <th class="text-left py-4 px-6">Value</th>
                             <th class="text-left py-4 px-6">Min. Trans.</th>
                             <th class="text-left py-4 px-6">Usage</th>
+                            <th class="text-left py-4 px-6">Produk</th>
                             <th class="text-left py-4 px-6">Exp. Date</th>
                             <th class="text-left py-4 px-6">Status</th>
                             <th class="text-left py-4 px-6">Aksi</th>
@@ -78,7 +79,23 @@
                                 <?= $promo['type'] == 'percentage' ? $promo['value'] . '%' : 'Rp ' . number_format($promo['value'], 0, ',', '.') ?>
                             </td>
                             <td class="py-4 px-6">Rp <?= number_format($promo['min_transaction'], 0, ',', '.') ?></td>
-                            <td class="py-4 px-6"><?= $promo['used_count'] ?> / <?= $promo['usage_limit'] ?: '∞' ?></td>
+                            <td class="py-4 px-6">
+                                <div class="text-sm">
+                                    <div><?= $promo['used_count'] ?> / <?= $promo['usage_limit'] ?: '∞' ?> (global)</div>
+                                    <?php if (isset($promo['user_limit_per_account']) && $promo['user_limit_per_account']): ?>
+                                    <div class="text-gray-400 text-xs"><?= $promo['user_limit_per_account'] ?>x per user</div>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                            <td class="py-4 px-6 text-sm">
+                                <?php if (!empty($promo['products'])): ?>
+                                    <div class="text-xs text-gray-400">
+                                        <?= count($promo['products']) ?> produk spesifik
+                                    </div>
+                                <?php else: ?>
+                                    <span class="text-gray-500">Semua produk</span>
+                                <?php endif; ?>
+                            </td>
                             <td class="py-4 px-6 text-sm"><?= $promo['valid_until'] ? date('d M Y', strtotime($promo['valid_until'])) : '-' ?></td>
                             <td class="py-4 px-6">
                                 <span class="<?= $promo['is_active'] ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400' ?> px-3 py-1 rounded-full text-xs">
@@ -163,10 +180,28 @@
                 <!-- Usage Limit -->
                 <div class="mb-6">
                     <label class="block text-gray-300 mb-2">
-                        <i class="fas fa-users mr-2"></i>Batas Penggunaan
+                        <i class="fas fa-users mr-2"></i>Batas Penggunaan Global
                     </label>
                     <input type="number" name="usage_limit" id="promoLimit" class="w-full bg-gray-900 border-2 border-gray-700 rounded-xl px-4 py-3" placeholder="100">
                     <p class="text-gray-400 text-sm mt-1">Kosongkan untuk unlimited</p>
+                </div>
+
+                <!-- User Limit Per Account -->
+                <div class="mb-6">
+                    <label class="block text-gray-300 mb-2">
+                        <i class="fas fa-user-lock mr-2"></i>Limit Per Akun/User
+                    </label>
+                    <input type="number" name="user_limit_per_account" id="promoUserLimit" class="w-full bg-gray-900 border-2 border-gray-700 rounded-xl px-4 py-3" placeholder="1">
+                    <p class="text-gray-400 text-sm mt-1">Berapa kali user/guest bisa pakai promo ini. Kosongkan untuk unlimited</p>
+                </div>
+
+                <!-- Valid From -->
+                <div class="mb-6">
+                    <label class="block text-gray-300 mb-2">
+                        <i class="fas fa-calendar-check mr-2"></i>Berlaku Dari
+                    </label>
+                    <input type="datetime-local" name="valid_from" id="promoValidFrom" class="w-full bg-gray-900 border-2 border-gray-700 rounded-xl px-4 py-3">
+                    <p class="text-gray-400 text-sm mt-1">Kosongkan untuk mulai berlaku sekarang</p>
                 </div>
 
                 <!-- Valid Until -->
@@ -174,7 +209,34 @@
                     <label class="block text-gray-300 mb-2">
                         <i class="fas fa-calendar mr-2"></i>Berlaku Hingga
                     </label>
-                    <input type="date" name="valid_until" id="promoExpiry" class="w-full bg-gray-900 border-2 border-gray-700 rounded-xl px-4 py-3">
+                    <input type="datetime-local" name="valid_until" id="promoExpiry" class="w-full bg-gray-900 border-2 border-gray-700 rounded-xl px-4 py-3">
+                    <p class="text-gray-400 text-sm mt-1">Kosongkan untuk tidak ada batas waktu</p>
+                </div>
+
+                <!-- Products Selection -->
+                <div class="mb-6">
+                    <label class="block text-gray-300 mb-2">
+                        <i class="fas fa-box mr-2"></i>Produk yang Bisa Pakai Promo Ini
+                    </label>
+                    <div class="bg-gray-900 border-2 border-gray-700 rounded-xl p-4 max-h-60 overflow-y-auto">
+                        <p class="text-gray-400 text-sm mb-3">Pilih produk spesifik. Jika tidak dipilih, promo berlaku untuk semua produk.</p>
+                        <div class="space-y-2" id="productCheckboxes">
+                            <?php if (!empty($all_products)): ?>
+                                <?php foreach ($all_products as $product): ?>
+                                <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-800 p-2 rounded">
+                                    <input type="checkbox" name="product_ids[]" value="<?= $product['id'] ?>" class="w-4 h-4 rounded">
+                                    <span class="text-gray-300">
+                                        <span class="font-semibold"><?= esc($product['game_name']) ?></span> - 
+                                        <?= esc($product['name']) ?> 
+                                        <span class="text-yellow-400">(Rp <?= number_format($product['price'], 0, ',', '.') ?>)</span>
+                                    </span>
+                                </label>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p class="text-gray-400 text-sm">Tidak ada produk aktif</p>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Active Status -->
@@ -233,8 +295,36 @@
             document.getElementById('promoMin').value = promo.min_transaction;
             document.getElementById('promoMax').value = promo.max_discount || '';
             document.getElementById('promoLimit').value = promo.usage_limit || '';
-            document.getElementById('promoExpiry').value = promo.valid_until || '';
+            document.getElementById('promoUserLimit').value = promo.user_limit_per_account || '';
+            
+            // Format datetime untuk valid_from dan valid_until
+            if (promo.valid_from) {
+                const validFrom = new Date(promo.valid_from);
+                document.getElementById('promoValidFrom').value = validFrom.toISOString().slice(0, 16);
+            } else {
+                document.getElementById('promoValidFrom').value = '';
+            }
+            
+            if (promo.valid_until) {
+                const validUntil = new Date(promo.valid_until);
+                document.getElementById('promoExpiry').value = validUntil.toISOString().slice(0, 16);
+            } else {
+                document.getElementById('promoExpiry').value = '';
+            }
+            
             document.getElementById('promoActive').checked = promo.is_active == 1;
+            
+            // Uncheck all products first
+            document.querySelectorAll('input[name="product_ids[]"]').forEach(cb => cb.checked = false);
+            
+            // Check products that are linked to this promo
+            if (promo.products && promo.products.length > 0) {
+                promo.products.forEach(product => {
+                    const checkbox = document.querySelector(`input[name="product_ids[]"][value="${product.id}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+            
             updateValueLabel();
         }
 

@@ -55,12 +55,19 @@ class Order extends BaseController
         $discount = 0;
         $promoId = null;
 
+        // Get user ID (bisa null untuk guest)
+        $userId = session()->get('user_id');
+
         // Apply promo code if provided
         if ($promoCode) {
-            $promoValidation = $this->promoModel->validateCode($promoCode, $amount);
+            // Pass product_id dan user_id ke validasi
+            $promoValidation = $this->promoModel->validateCode($promoCode, $amount, $productId, $userId);
             if ($promoValidation['valid']) {
                 $discount = $promoValidation['discount'];
                 $promoId = $promoValidation['promo_id'];
+            } else {
+                // Jika promo tidak valid, redirect back dengan error
+                return redirect()->back()->withInput()->with('error', $promoValidation['message']);
             }
         }
 
@@ -71,7 +78,6 @@ class Order extends BaseController
         $totalPayment = $amount - $discount + $fee;
 
         // Calculate points (if user logged in)
-        $userId = session()->get('user_id');
         $pointsEarned = 0;
         if ($userId) {
             $pointsEarned = floor($totalPayment / 1000); // 1 point per 1000 rupiah
@@ -118,11 +124,12 @@ class Order extends BaseController
             'expired_at' => $expiredAt
         ];
 
-        $this->transactionModel->insert($transactionData);
+        $transactionId =         $this->transactionModel->insert($transactionData);
+        $transactionId = $this->transactionModel->getInsertID();
 
-        // Increment promo usage
+        // Increment promo usage dengan tracking per user
         if ($promoId) {
-            $this->promoModel->incrementUsage($promoId);
+            $this->promoModel->incrementUsage($promoId, $userId, $transactionId);
         }
 
         return redirect()->to(base_url('order/status/' . $invoice));
@@ -154,6 +161,7 @@ class Order extends BaseController
     {
         $code = $this->request->getPost('code');
         $amount = $this->request->getPost('amount');
+        $productId = $this->request->getPost('product_id');
 
         if (!$code || !$amount) {
             return $this->response->setJSON([
@@ -162,7 +170,11 @@ class Order extends BaseController
             ]);
         }
 
-        $result = $this->promoModel->validateCode($code, $amount);
+        // Get user ID (bisa null untuk guest)
+        $userId = session()->get('user_id');
+
+        // Pass product_id dan user_id ke validasi
+        $result = $this->promoModel->validateCode($code, $amount, $productId, $userId);
 
         return $this->response->setJSON([
             'success' => $result['valid'],

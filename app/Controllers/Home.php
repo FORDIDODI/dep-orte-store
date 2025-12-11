@@ -56,8 +56,12 @@ class Home extends BaseController
 
     public function cekTransaksi()
     {
+        // Ambil invoice dari parameter GET jika ada
+        $invoice = $this->request->getGet('invoice');
+        
         $data = [
-            'title' => 'Cek Transaksi - Deporte Store'
+            'title' => 'Cek Transaksi - Deporte Store',
+            'invoice' => $invoice
         ];
 
         return view('home/cek_transaksi', $data);

@@ -281,6 +281,13 @@ checkPromoBtn.addEventListener('click', function() {
         return;
     }
 
+    // Get selected product ID
+    const selectedProduct = document.querySelector('input[name="product_id"]:checked');
+    if (!selectedProduct) {
+        showPromoMessage('Pilih produk terlebih dahulu', 'error');
+        return;
+    }
+
     fetch('<?= base_url('order/check-promo') ?>', {
         method: 'POST',
         headers: {
@@ -289,6 +296,7 @@ checkPromoBtn.addEventListener('click', function() {
         body: new URLSearchParams({
             code: code,
             amount: selectedPrice,
+            product_id: selectedProduct.value,
             '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
         })
     })
