@@ -86,8 +86,8 @@ class Order extends BaseController
         // Generate invoice
         $invoice = $this->transactionModel->generateInvoice();
 
-        // Expiry time (60 minutes from now)
-        $expiredAt = date('Y-m-d H:i:s', strtotime('+60 minutes'));
+        // Expiry time (24 hours from now)
+        $expiredAt = date('Y-m-d H:i:s', strtotime('+24 hours'));
 
         // Get payment method
         $paymentMethod = $this->paymentModel->find($paymentMethodId);
@@ -143,8 +143,8 @@ class Order extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        // Check if expired
-        if ($transaction['status'] == 'pending' && strtotime($transaction['expired_at']) < time()) {
+        // Check if expired (auto-expire setelah 24 jam)
+        if (in_array($transaction['status'], ['pending', 'processing']) && strtotime($transaction['expired_at']) < time()) {
             $this->transactionModel->update($transaction['id'], ['status' => 'expired']);
             $transaction['status'] = 'expired';
         }

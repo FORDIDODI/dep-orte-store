@@ -56,26 +56,41 @@
         </div>
     </div>
 
-    <!-- Timer (if pending) -->
-    <?php if ($transaction['status'] == 'pending'): ?>
+    <!-- Timer (if pending or processing) -->
+    <?php if (in_array($transaction['status'], ['pending', 'processing'])): ?>
     <div class="bg-gray-800 rounded-2xl p-6 mb-6 text-center">
-        <p class="text-gray-400 mb-4">Selesaikan pembayaran dalam</p>
-        <div class="flex justify-center gap-4">
-            <div class="bg-gray-900 rounded-xl p-4 min-w-[80px]">
-                <div id="timer-hours" class="text-3xl font-bold text-red-500">00</div>
+        <p class="text-gray-400 mb-4">
+            <?php if ($transaction['status'] == 'pending'): ?>
+                Selesaikan pembayaran dalam
+            <?php else: ?>
+                Waktu verifikasi tersisa
+            <?php endif; ?>
+        </p>
+        <div class="flex justify-center gap-2 md:gap-4 flex-wrap">
+            <div class="bg-gray-900 rounded-xl p-4 min-w-[70px] md:min-w-[80px]">
+                <div id="timer-days" class="text-2xl md:text-3xl font-bold text-red-500">00</div>
+                <div class="text-xs text-gray-400 mt-1">Hari</div>
+            </div>
+            <div class="flex items-center text-2xl md:text-3xl font-bold text-gray-600">:</div>
+            <div class="bg-gray-900 rounded-xl p-4 min-w-[70px] md:min-w-[80px]">
+                <div id="timer-hours" class="text-2xl md:text-3xl font-bold text-red-500">00</div>
                 <div class="text-xs text-gray-400 mt-1">Jam</div>
             </div>
-            <div class="flex items-center text-3xl font-bold text-gray-600">:</div>
-            <div class="bg-gray-900 rounded-xl p-4 min-w-[80px]">
-                <div id="timer-minutes" class="text-3xl font-bold text-red-500">00</div>
+            <div class="flex items-center text-2xl md:text-3xl font-bold text-gray-600">:</div>
+            <div class="bg-gray-900 rounded-xl p-4 min-w-[70px] md:min-w-[80px]">
+                <div id="timer-minutes" class="text-2xl md:text-3xl font-bold text-red-500">00</div>
                 <div class="text-xs text-gray-400 mt-1">Menit</div>
             </div>
-            <div class="flex items-center text-3xl font-bold text-gray-600">:</div>
-            <div class="bg-gray-900 rounded-xl p-4 min-w-[80px]">
-                <div id="timer-seconds" class="text-3xl font-bold text-red-500">00</div>
+            <div class="flex items-center text-2xl md:text-3xl font-bold text-gray-600">:</div>
+            <div class="bg-gray-900 rounded-xl p-4 min-w-[70px] md:min-w-[80px]">
+                <div id="timer-seconds" class="text-2xl md:text-3xl font-bold text-red-500">00</div>
                 <div class="text-xs text-gray-400 mt-1">Detik</div>
             </div>
         </div>
+        <p class="text-gray-500 text-xs mt-4">
+            <i class="fas fa-clock mr-1"></i>
+            Batas waktu: <?= date('d M Y H:i', strtotime($transaction['expired_at'])) ?>
+        </p>
     </div>
     <?php endif; ?>
 
@@ -110,10 +125,20 @@
             <div class="flex items-center gap-3 bg-gray-900 p-4 rounded-xl">
                 <span class="flex-1 font-mono text-lg"><?= esc($transaction['invoice_number']) ?></span>
                 <button onclick="copyToClipboard('<?= $transaction['invoice_number'] ?>')" 
-                        class="bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-lg transition">
+                        class="bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-lg transition"
+                        title="Salin Invoice">
                     <i class="fas fa-copy"></i>
                 </button>
+                <a href="<?= base_url('cek-transaksi?invoice=' . urlencode($transaction['invoice_number'])) ?>" 
+                   class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition"
+                   title="Cek Transaksi">
+                    <i class="fas fa-search"></i>
+                </a>
             </div>
+            <p class="text-gray-400 text-xs mt-2">
+                <i class="fas fa-info-circle mr-1"></i>
+                Klik tombol <i class="fas fa-search"></i> untuk cek status transaksi ini di halaman Cek Transaksi
+            </p>
         </div>
 
         <!-- VA Number or QR Code -->
@@ -210,7 +235,21 @@
         <div class="bg-indigo-500/20 border border-indigo-500 rounded-xl p-4 mb-6">
             <i class="fas fa-info-circle mr-2"></i>
             <span class="text-sm">
-                Pembayaran akan dikonfirmasi otomatis. Silahkan tunggu atau hubungi CS jika ada kendala.
+                Pembayaran akan dikonfirmasi otomatis dalam 24 jam. Silahkan tunggu atau hubungi CS jika ada kendala.
+            </span>
+        </div>
+        <?php elseif ($transaction['status'] == 'processing'): ?>
+        <div class="bg-blue-500/20 border border-blue-500 rounded-xl p-4 mb-6">
+            <i class="fas fa-info-circle mr-2"></i>
+            <span class="text-sm">
+                Pembayaran sedang diverifikasi. Proses verifikasi maksimal 24 jam dari waktu pembayaran.
+            </span>
+        </div>
+        <?php elseif ($transaction['status'] == 'expired'): ?>
+        <div class="bg-red-500/20 border border-red-500 rounded-xl p-4 mb-6">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            <span class="text-sm">
+                Transaksi telah kedaluwarsa karena melewati batas waktu 24 jam. Silahkan buat transaksi baru.
             </span>
         </div>
         <?php elseif ($transaction['status'] == 'success'): ?>
@@ -222,10 +261,17 @@
         </div>
         <?php endif; ?>
 
-        <a href="<?= base_url('/') ?>" 
-           class="inline-block bg-gray-700 hover:bg-gray-600 px-8 py-3 rounded-xl font-semibold transition">
-            Kembali ke Beranda
-        </a>
+        <div class="flex gap-4 justify-center">
+            <a href="<?= base_url('cek-transaksi?invoice=' . urlencode($transaction['invoice_number'])) ?>" 
+               class="inline-block bg-indigo-600 hover:bg-indigo-700 px-8 py-3 rounded-xl font-semibold transition">
+                <i class="fas fa-search mr-2"></i>
+                Cek Transaksi Lagi
+            </a>
+            <a href="<?= base_url('/') ?>" 
+               class="inline-block bg-gray-700 hover:bg-gray-600 px-8 py-3 rounded-xl font-semibold transition">
+                Kembali ke Beranda
+            </a>
+        </div>
     </div>
 </div>
 
@@ -235,7 +281,8 @@
 <script>
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
-        alert('Berhasil disalin!');
+        // Show toast notification instead of alert
+        showToast('Invoice berhasil disalin ke clipboard!', 'success');
     }).catch(() => {
         // Fallback
         const temp = document.createElement('textarea');
@@ -244,12 +291,28 @@ function copyToClipboard(text) {
         temp.select();
         document.execCommand('copy');
         document.body.removeChild(temp);
-        alert('Berhasil disalin!');
+        showToast('Invoice berhasil disalin ke clipboard!', 'success');
     });
 }
 
-<?php if ($transaction['status'] == 'pending'): ?>
-// Countdown Timer
+// Toast notification function
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-xl shadow-lg transition-all transform translate-x-0 ${
+        type === 'success' ? 'bg-green-500' : 'bg-indigo-500'
+    } text-white font-semibold`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.transform = 'translateX(400px)';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
+}
+
+<?php if (in_array($transaction['status'], ['pending', 'processing'])): ?>
+// Countdown Timer (24 hours)
 const expiredAt = new Date('<?= $transaction['expired_at'] ?>').getTime();
 
 function updateTimer() {
@@ -257,29 +320,42 @@ function updateTimer() {
     const distance = expiredAt - now;
 
     if (distance < 0) {
+        // Waktu habis, auto-expire
+        document.getElementById('timer-days').textContent = '00';
         document.getElementById('timer-hours').textContent = '00';
         document.getElementById('timer-minutes').textContent = '00';
         document.getElementById('timer-seconds').textContent = '00';
-        setTimeout(() => location.reload(), 2000);
+        
+        // Reload halaman untuk update status ke expired
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
         return;
     }
 
+    // Calculate time
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
     const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
+    // Update display
+    if (document.getElementById('timer-days')) {
+        document.getElementById('timer-days').textContent = String(days).padStart(2, '0');
+    }
     document.getElementById('timer-hours').textContent = String(hours).padStart(2, '0');
     document.getElementById('timer-minutes').textContent = String(minutes).padStart(2, '0');
     document.getElementById('timer-seconds').textContent = String(seconds).padStart(2, '0');
 }
 
+// Update timer setiap detik
 setInterval(updateTimer, 1000);
 updateTimer();
 
-// Auto refresh every 30 seconds
+// Auto refresh every 60 seconds untuk sync dengan server
 setInterval(() => {
     location.reload();
-}, 30000);
+}, 60000);
 <?php endif; ?>
 </script>
 <?= $this->endSection() ?>

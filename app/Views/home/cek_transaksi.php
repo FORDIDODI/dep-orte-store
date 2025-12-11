@@ -18,6 +18,13 @@
             </div>
             <?php endif; ?>
 
+            <?php if (!empty($invoice)): ?>
+            <div class="bg-indigo-500/20 border border-indigo-500 rounded-xl p-4 mb-6">
+                <i class="fas fa-info-circle mr-2"></i>
+                <span>Invoice sudah diisi. Klik tombol di bawah untuk cek status transaksi.</span>
+            </div>
+            <?php endif; ?>
+
             <form action="<?= base_url('cek-transaksi/search') ?>" method="POST">
                 <?= csrf_field() ?>
                 
@@ -60,4 +67,46 @@
     </div>
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+// Auto-submit jika invoice sudah diisi dari parameter URL
+document.addEventListener('DOMContentLoaded', function() {
+    const invoiceInput = document.getElementById('invoiceInput');
+    const invoiceValue = invoiceInput.value.trim();
+    
+    // Jika invoice sudah diisi, bisa langsung submit atau biarkan user submit manual
+    if (invoiceValue) {
+        // Highlight input untuk menunjukkan invoice sudah diisi
+        invoiceInput.classList.add('border-indigo-500');
+        invoiceInput.focus();
+        
+        // Optional: Auto-submit setelah 1 detik (uncomment jika ingin)
+        // setTimeout(() => {
+        //     invoiceInput.closest('form').submit();
+        // }, 1000);
+    }
+});
+
+// Copy invoice to clipboard function
+function copyInvoice() {
+    const invoiceInput = document.getElementById('invoiceInput');
+    const invoice = invoiceInput.value.trim();
+    
+    if (!invoice) {
+        alert('Invoice kosong!');
+        return;
+    }
+    
+    navigator.clipboard.writeText(invoice).then(() => {
+        alert('Invoice berhasil disalin!');
+    }).catch(() => {
+        // Fallback
+        invoiceInput.select();
+        document.execCommand('copy');
+        alert('Invoice berhasil disalin!');
+    });
+}
+</script>
 <?= $this->endSection() ?>

@@ -67,6 +67,44 @@
                             <h4 class="text-2xl font-bold text-<?= $status['color'] ?>-400"><?= $status['text'] ?></h4>
                         </div>
 
+                        <!-- Timer untuk pending/processing -->
+                        <?php if (in_array($transaction['status'], ['pending', 'processing']) && !empty($transaction['expired_at'])): ?>
+                        <div class="mt-6 bg-gray-900 rounded-xl p-6 text-center">
+                            <p class="text-gray-400 mb-4 text-sm">
+                                <?php if ($transaction['status'] == 'pending'): ?>
+                                    Waktu pembayaran tersisa
+                                <?php else: ?>
+                                    Waktu verifikasi tersisa
+                                <?php endif; ?>
+                            </p>
+                            <div class="flex justify-center gap-2 flex-wrap">
+                                <div class="bg-gray-800 rounded-lg p-3 min-w-[60px]">
+                                    <div id="admin-timer-days" class="text-2xl font-bold text-red-500">00</div>
+                                    <div class="text-xs text-gray-400 mt-1">Hari</div>
+                                </div>
+                                <div class="flex items-center text-xl font-bold text-gray-600">:</div>
+                                <div class="bg-gray-800 rounded-lg p-3 min-w-[60px]">
+                                    <div id="admin-timer-hours" class="text-2xl font-bold text-red-500">00</div>
+                                    <div class="text-xs text-gray-400 mt-1">Jam</div>
+                                </div>
+                                <div class="flex items-center text-xl font-bold text-gray-600">:</div>
+                                <div class="bg-gray-800 rounded-lg p-3 min-w-[60px]">
+                                    <div id="admin-timer-minutes" class="text-2xl font-bold text-red-500">00</div>
+                                    <div class="text-xs text-gray-400 mt-1">Menit</div>
+                                </div>
+                                <div class="flex items-center text-xl font-bold text-gray-600">:</div>
+                                <div class="bg-gray-800 rounded-lg p-3 min-w-[60px]">
+                                    <div id="admin-timer-seconds" class="text-2xl font-bold text-red-500">00</div>
+                                    <div class="text-xs text-gray-400 mt-1">Detik</div>
+                                </div>
+                            </div>
+                            <p class="text-gray-500 text-xs mt-4">
+                                <i class="fas fa-clock mr-1"></i>
+                                Batas: <?= date('d M Y H:i', strtotime($transaction['expired_at'])) ?>
+                            </p>
+                        </div>
+                        <?php endif; ?>
+
                         <!-- Update Status Form -->
                         <?php if ($transaction['status'] != 'success'): ?>
                         <form action="<?= base_url('admin/transactions/update-status') ?>" method="POST" class="mt-6">
@@ -162,5 +200,52 @@
             </div>
         </main>
     </div>
+
+    <script>
+    <?php if (in_array($transaction['status'], ['pending', 'processing']) && !empty($transaction['expired_at'])): ?>
+    // Countdown Timer untuk Admin (24 hours)
+    const adminExpiredAt = new Date('<?= $transaction['expired_at'] ?>').getTime();
+
+    function updateAdminTimer() {
+        const now = new Date().getTime();
+        const distance = adminExpiredAt - now;
+
+        if (distance < 0) {
+            // Waktu habis, auto-expire
+            document.getElementById('admin-timer-days').textContent = '00';
+            document.getElementById('admin-timer-hours').textContent = '00';
+            document.getElementById('admin-timer-minutes').textContent = '00';
+            document.getElementById('admin-timer-seconds').textContent = '00';
+            
+            // Reload halaman untuk update status ke expired
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+            return;
+        }
+
+        // Calculate time
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Update display
+        document.getElementById('admin-timer-days').textContent = String(days).padStart(2, '0');
+        document.getElementById('admin-timer-hours').textContent = String(hours).padStart(2, '0');
+        document.getElementById('admin-timer-minutes').textContent = String(minutes).padStart(2, '0');
+        document.getElementById('admin-timer-seconds').textContent = String(seconds).padStart(2, '0');
+    }
+
+    // Update timer setiap detik
+    setInterval(updateAdminTimer, 1000);
+    updateAdminTimer();
+
+    // Auto refresh every 60 seconds untuk sync dengan server
+    setInterval(() => {
+        location.reload();
+    }, 60000);
+    <?php endif; ?>
+    </script>
 </body>
 </html>

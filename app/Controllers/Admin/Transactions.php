@@ -54,6 +54,14 @@ class Transactions extends BaseController
             return redirect()->to(base_url('admin/transactions'))->with('error', 'Transaksi tidak ditemukan');
         }
 
+        // Check if expired (auto-expire setelah 24 jam)
+        if (in_array($transaction['status'], ['pending', 'processing']) && strtotime($transaction['expired_at']) < time()) {
+            $transactionModel->update($transaction['id'], ['status' => 'expired']);
+            $transaction['status'] = 'expired';
+            // Reload transaction data
+            $transaction = $transactionModel->getWithDetails($id);
+        }
+
         return view('admin/transactions/detail', ['title' => 'Detail Transaksi', 'transaction' => $transaction]);
     }
 
