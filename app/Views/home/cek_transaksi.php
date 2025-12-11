@@ -25,6 +25,8 @@
                     <label class="block text-gray-300 mb-3 text-lg">Nomor Invoice</label>
                     <input type="text" 
                            name="invoice" 
+                           id="invoiceInput"
+                           value="<?= esc($invoice ?? '') ?>"
                            class="w-full bg-gray-900 border-2 border-gray-700 rounded-xl px-6 py-4 text-lg font-mono focus:border-indigo-500 focus:outline-none transition" 
                            placeholder="Contoh: INV20240101ABC123"
                            required>
